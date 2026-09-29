@@ -1,0 +1,16 @@
+# Pinned environment for the Zurich night-heat analysis
+# Python 3.12 (tested in a clean 3.12 environment). Verified 2026-08-09.
+duckdb==1.5.4
+geopandas==1.1.4
+matplotlib==3.10.9
+numpy==2.2.6
+pandas==2.3.3
+patsy==1.0.2
+pyarrow==25.0.0
+pyogrio==0.13.0
+pyproj==3.7.1
+rasterio==1.4.4
+scikit-learn==1.7.2
+scipy==1.15.3
+shapely==2.1.2
+statsmodels==0.14.6
