@@ -1,9 +1,7 @@
 # Zurich urban heat analysis
 
 This repository contains the input data and Python code for the study of
-within-city temperature patterns in Zurich. Generated tables, maps, figures and
-manuscript files are created locally when the analysis is run; they are not
-stored in this repository.
+within-city temperature patterns in Zurich. 
 
 ## Run the analysis
 
