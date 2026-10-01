@@ -6,7 +6,7 @@ set. Rather than defend one specification, we estimate ALL of them and report th
 distribution. This is the honest representation of what night-level observational
 data can say.
 
-Crossed factors (pre-declared in PRE_ANALYSIS_PLAN.md section 6):
+Crossed factors (exploratory sensitivity analysis):
   night window   : 20-08 / 21-07 / 22-06        (recomputed from raw 15-min data)
   spread metric  : SD / p90-p10 / IQR
   regime cut     : 33-67 / 25-75 / 20-80 tertile-equivalents

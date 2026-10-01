@@ -55,3 +55,11 @@ The hourly MeteoSwiss input is also retained as a prepared data file.
 
 The raw temperature archive is City of Zurich open data. ERA5 responses and
 their request details are documented in `data_external/era5_pinned/README.md`.
+
+The prepared spatial layers have incomplete upstream provenance: exact source
+vintages, some extraction settings and the FITNAH model release cannot be
+recovered. The checksum verifies the retained file, not those preparation steps.
+An additional spatial check fits the coverage adjustment inside each training
+fold: `python pipeline/v3_29_fold_contained_validation.py` (after the main run).
+Cooling-delay outputs include right-censoring fractions and Kaplan–Meier checks;
+20 °C station medians cannot all be estimated during the available follow-up.

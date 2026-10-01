@@ -46,7 +46,7 @@ def fluntern() -> None:
     d["ts"] = pd.to_datetime(d.timestamp, utc=True)
     d = d[d.ts.dt.year.between(2020, 2025)]
     q = d.set_index("ts").value.sort_index()
-    smn = pd.read_csv(os.path.join(ROOT, "data", "inputs",
+    smn = pd.read_csv(os.path.join(ROOT, "outputs_robust",
                                    "official_meteoswiss_hourly_zurich_synoptic.csv"),
                       usecols=["station_abbr", "timestamp_utc", "tre200h0", "gre000h0"])
     smn = smn[smn.station_abbr == "SMA"].copy()
@@ -319,6 +319,18 @@ def fitnah(grid: pd.DataFrame, tg: pd.DataFrame) -> None:
 
 
 # --------------------------------------------------------------------------
+def km_median(g: pd.DataFrame) -> float:
+    """Product-limit median; events precede censor removals at tied times."""
+    risk, survival = len(g), 1.0
+    for t, at in g.groupby("delay", sort=True):
+        events = int((~at.censored).sum())
+        survival *= 1.0 - events / risk
+        if survival <= 0.5 + 1e-12:
+            return float(t)
+        risk -= len(at)
+    return float("nan")
+
+
 def ventilation(tr: pd.DataFrame) -> None:
     """Hours after sunset until outdoor air first falls below a threshold on hot evenings."""
     sl = pd.read_parquet(SLOT_CACHE)
@@ -342,15 +354,25 @@ def ventilation(tr: pd.DataFrame) -> None:
         seen = seen[seen["size"] >= 30]
         dd = seen.join(below.rename("first_below"), how="left")
         dd["censored"] = dd.first_below.isna()
-        # censored station-nights take the last observed offset + 0.25 h (lower bound)
-        dd["delay"] = dd.first_below.fillna(dd["max"] + 0.25)
+        # Right censor at the last observed quarter-hour bin; no extra unobserved interval.
+        dd["delay"] = dd.first_below.fillna(dd["max"])
         st = dd.groupby("locationID").agg(median_delay=("delay", "median"),
                                           share_censored=("censored", "mean"),
                                           n=("delay", "size")).reset_index()
         st = st[st.n >= 20].merge(tr[["locationID", "bldg_frac", "canopy", "elevation"]], on="locationID")
+        # Use the same qualifying-station denominator for all summaries.
+        dd = dd[dd.index.get_level_values("locationID").isin(st.locationID)].copy()
+        km = dd.groupby(level="locationID").apply(km_median)
+        st["km_median_delay"] = st.locationID.map(km)
         qb = pd.qcut(st.bldg_frac, 4, labels=False)
+        dd["quartile"] = dd.index.get_level_values("locationID").map(dict(zip(st.locationID, qb)))
+        dd.reset_index().to_csv(os.path.join(OUT, f"rev_cooling_records_{int(thr)}c.csv"), index=False)
         res.append(dict(threshold_c=thr, n_station_nights=int(len(dd)),
                         n_stations=int(len(st)),
+                        km_undefined_stations=int(st.km_median_delay.isna().sum()),
+                        km_low_bldg_quartile=float(st.km_median_delay[qb == 0].median()) if st.km_median_delay[qb == 0].notna().all() else np.nan,
+                        km_high_bldg_quartile=float(st.km_median_delay[qb == 3].median()) if st.km_median_delay[qb == 3].notna().all() else np.nan,
+                        **{f"censored_quartile_{q+1}": float(dd.loc[dd.quartile == q, "censored"].mean()) for q in range(4)},
                         share_censored=float(dd.censored.mean()),
                         city_median_delay_h=float(dd.delay.median()),
                         station_median_delay_p10=float(st.median_delay.quantile(.1)),
@@ -373,7 +395,7 @@ def main() -> None:
     city_cooling_rate()
     tr = station_traits()
     tg = dusk_anomaly_targets()
-    grid = pd.read_csv(os.path.join(ROOT, "data", "inputs", "citywide_grid_priority_screen.csv")).merge(
+    grid = pd.read_csv(os.path.join(ROOT, "outputs_robust", "citywide_grid_priority_screen.csv")).merge(
         pd.read_csv(os.path.join(ROOT, "outputs_robust", "v3_spatial_rebuild_grid.csv"))[
             ["recordid", "gp_adjusted_mean_night_min_c", "gp_adjusted_mean_night_min_c_sd",
              "idw2_adjusted_mean_night_min_c"]], on="recordid", validate="one_to_one")

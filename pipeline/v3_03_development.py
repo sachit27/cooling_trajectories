@@ -2,8 +2,8 @@
 V3 STEP 3 -- DEVELOPMENT SAMPLE ONLY (summers 2020-2023).
 
 This script may look at the development sample freely. The hold-out (2024-2025)
-is not touched here. Hypotheses are formed from these results, frozen in
-PRE_ANALYSIS_PLAN.md, and only then tested on the hold-out.
+is not touched here. The later-period comparison is internal and exploratory; no claim of
+prospective preregistration is made.
 
 Outputs (outputs_v3/):
   dev_E1_simpson_decomposition.csv

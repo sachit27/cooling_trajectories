@@ -1,10 +1,10 @@
 """
 V3 STEP 4 -- INTERNAL TEMPORAL EVALUATION (summers 2024-2025).
 
-Executes exactly the five hypotheses frozen in PRE_ANALYSIS_PLAN.md, with the
+Evaluates five development-derived hypotheses, with the
 estimators defined in v3_core.py. No new estimators, no re-metricisation.
-Whatever comes out is reported.  The plan was written after exploration and
-has no external timestamp, so these results are not labelled preregistered
+These hypotheses follow development-sample exploration. No prospective plan
+is retained in this package, so these results are not labelled preregistered
 confirmation or independent replication.  The output filename is retained for
 backward compatibility.
 
@@ -21,7 +21,7 @@ import v3_core as C
 
 OUT = C.OUT
 
-# Development-sample values, copied from PRE_ANALYSIS_PLAN.md section 3.
+# Retained development-sample values; no prospective plan is available in this package.
 DEV = {
     "H1": {"stat": "spearman_rho", "dev_estimate": 0.2450, "predicted": "positive"},
     "H2": {"stat": "partial_rho", "dev_estimate": 0.1950, "predicted": "positive"},
