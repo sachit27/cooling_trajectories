@@ -126,15 +126,19 @@ def city_cooling_rate() -> None:
 # --------------------------------------------------------------------------
 def station_traits() -> pd.DataFrame:
     tr = pd.read_csv(os.path.join(ROOT, "outputs_v3", "v3_station_traits.csv"))
+    context = traits_mod.nearest_cell_context(tr)
+    tr["coldair_flow"] = tr.locationID.map(context.set_index("locationID").coldair_flow)
     rows, rep = [], []
     ids = tr.locationID.to_numpy()
     coords = tr[["EKoord", "NKoord"]].to_numpy(float)
     sigs = [sig(traits_mod.spatial_blocks(coords, SEED + r), ids) for r in range(50)]
     summary["trait_partitions_distinct_of_50"] = int(len(set(sigs)))
     for preds, tag in [(["elevation", "bldg_frac", "canopy"], "three"),
-                       (["elevation", "bldg_frac", "canopy", "coldair_flow"], "four")]:
+                       (["elevation", "bldg_frac", "canopy", "coldair_flow"], "four"),
+                       (["elevation", "bldg_frac", "canopy"], "three_matched_cold")]:
         for target in ["dusk_anom", "integ_anom", "decay_tend"]:
-            sub = tr.dropna(subset=[target] + preds)
+            source = tr if tag == "three" else tr.dropna(subset=["coldair_flow"])
+            sub = source.dropna(subset=[target] + preds)
             X, y = sub[preds].to_numpy(float), sub[target].to_numpy(float)
             cc = sub[["EKoord", "NKoord"]].to_numpy(float)
             from sklearn.linear_model import RidgeCV
@@ -152,7 +156,7 @@ def station_traits() -> pd.DataFrame:
                         y, traits_mod.blocked_predictions(np.delete(X, j, 1), y, b))["r2"]
                     drops[p].append(full - red)
             for p, c in zip(preds, coef):
-                rows.append(dict(model=tag, target=target, predictor=p, std_coef=float(c),
+                rows.append(dict(model=tag, target=target, predictor=p, n_stations=len(sub), std_coef=float(c),
                                  cv_r2_median=float(np.median(r2s)),
                                  cv_r2_q05=float(np.quantile(r2s, .05)),
                                  cv_r2_q95=float(np.quantile(r2s, .95)),

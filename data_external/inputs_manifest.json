@@ -12,7 +12,8 @@
     "data_external/era5_pinned/openmeteo_era5_zurich_nw.json": "2e296e4c920a3e433b41d9e15a0cfa9b61c066b087ca82fe36821aed424ae34a",
     "data_external/era5_pinned/openmeteo_era5_zurich_se.json": "ac00c778f47e33f0e99b01cdc53c9238546ba136b00f09f466123551a44efe2a",
     "data_external/era5_pinned/openmeteo_era5_zurich_sw.json": "5387daa5a9aad571c837a7083b46ecc5c0cf9bdf82db76b3375f37911e33ed7c",
-    "data_external/meteoblue_qa_metadata.csv": "36d5675bdcd5af916d37cb9478c83f6e9955023a2d3508f994acfed095f2b67d"
+    "data_external/meteoblue_qa_metadata.csv": "36d5675bdcd5af916d37cb9478c83f6e9955023a2d3508f994acfed095f2b67d",
+    "data_external/fitnah_coldflow_extraction_quality.csv": "310fde65c92772b95f46de7a87fcb5b76a2733a97837d3ad38a398e5dbf19baf"
   },
   "scope_note": "citywide_grid_priority_screen.csv is a checksummed terminal derived input; its deleted upstream build code is not claimed reproducible"
 }

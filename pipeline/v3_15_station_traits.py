@@ -53,7 +53,7 @@ from v3_14_trajectory_framework import sunset_local, SLOT_SQL, load_slots, SS_LO
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = C.OUT
 LOC = os.path.join(ROOT, "heat", "meteoblue_station_locations.csv")
-SCREEN = os.path.join(ROOT, "data", "inputs", "citywide_grid_priority_screen.csv")
+SCREEN = os.path.join(ROOT, "outputs_robust", "citywide_grid_priority_screen.csv")
 SEED = 20260721
 DUSK_LO, DUSK_HI = 0.0, 1.0
 N_BLOCKS = 6
@@ -63,6 +63,12 @@ N_BLOCK_REPEATS = 50
 def nearest_cell_context(stations: pd.DataFrame) -> pd.DataFrame:
     """Sample each station's nearest 100 m cell for direct urban-form context."""
     scr = pd.read_csv(SCREEN)
+    quality = pd.read_csv(os.path.join(ROOT, "data_external",
+                                       "fitnah_coldflow_extraction_quality.csv"))
+    affected = quality.loc[quality.negative_code_pixel_count > 0, "recordid"]
+    # Conservatively omit windows containing negative source codes. Their
+    # encoding is unresolved; treating them as zero or NoData is not assumed.
+    scr.loc[scr.recordid.isin(affected), "ka_coldair_flow"] = np.nan
     cx = scr[["centroid_easting_2056", "centroid_northing_2056",
               "canopy_cover_250m_direct", "bldg_footprint_frac_250m_direct",
               "tree_density_250m_direct", "noise_night_mean_direct",

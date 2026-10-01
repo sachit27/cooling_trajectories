@@ -46,19 +46,16 @@ stage, call its script directly, for example `python pipeline/v3_01_night_metric
 - `data_external/inputs_manifest.json` — SHA-256 checksums for the load-bearing
   inputs.
 
-The 100 m screening grid in `data/inputs/` is a prepared input. Its population,
-canopy, building and climate-model layers came from City and Canton of Zurich
-and swisstopo sources. The earlier processing code for those layers is not
-available here; the grid is retained with a checksum so the analyses that use
-it can be rerun. The scripts rebuild the station-derived temperature fields.
-The hourly MeteoSwiss input is also retained as a prepared data file.
+The 100 m screening grid in `data/inputs/` is a prepared input. Population,
+building and other spatial layers come from City and Canton of Zurich and
+swisstopo sources. Canopy height comes from Meta/WRI CHMv2; the FITNAH context
+comes from the Canton of Zurich's 2024 status-quo model. Temperature fields
+are rebuilt from the station data. Cold-air analyses exclude windows flagged
+in `data_external/fitnah_coldflow_extraction_quality.csv`.
 
 The raw temperature archive is City of Zurich open data. ERA5 responses and
 their request details are documented in `data_external/era5_pinned/README.md`.
 
-The prepared spatial layers have incomplete upstream provenance: exact source
-vintages, some extraction settings and the FITNAH model release cannot be
-recovered. The checksum verifies the retained file, not those preparation steps.
 An additional spatial check fits the coverage adjustment inside each training
 fold: `python pipeline/v3_29_fold_contained_validation.py` (after the main run).
 Cooling-delay outputs include right-censoring fractions and Kaplan–Meier checks;

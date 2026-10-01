@@ -38,7 +38,7 @@ import v3_core as C
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = C.OUT
-SCREEN = os.path.join(ROOT, "data", "inputs", "citywide_grid_priority_screen.csv")
+SCREEN = os.path.join(ROOT, "outputs_robust", "citywide_grid_priority_screen.csv")
 SEED = 20260721
 N_BOOT = 3000
 
@@ -48,6 +48,10 @@ N_BOOT = 3000
 # --------------------------------------------------------------------------
 def fitnah_validation():
     s = pd.read_csv(SCREEN)
+    quality = pd.read_csv(os.path.join(ROOT, "data_external",
+                                       "fitnah_coldflow_extraction_quality.csv"))
+    affected = quality.loc[quality.negative_code_pixel_count > 0, "recordid"]
+    s.loc[s.recordid.isin(affected), "ka_coldair_flow"] = np.nan
     # Use identical complete cells for GP and IDW so their external-validation
     # comparison is reproducible and not driven by differing missingness.
     d = s.dropna(subset=["ka_temp_night", "gp_mean_night_min_c",
